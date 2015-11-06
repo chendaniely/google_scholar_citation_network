@@ -62,14 +62,17 @@ class DanGoogleScholarArticle(object):
         cluster_id_link = soup_cluster_id.\
             find('a', class_='gs_nph').get('href')
 
-        pattern_cluster = re.compile('cluster=\d+')
-        cluster_str = pattern_cluster.\
-            findall(cluster_id_link)[cluster_str_index]
+        try:
+            pattern_cluster = re.compile('cluster=\d+')
+            cluster_str = pattern_cluster.\
+                findall(cluster_id_link)[cluster_str_index]
 
-        pattern_cluster_id = re.compile('\d+')
-        cluster_id_str = pattern_cluster_id.\
-            find_all(cluster_str)[cluster_id_str_index]
-        self.cluster_id = int(cluster_id_str)
+            pattern_cluster_id = re.compile('\d+')
+            cluster_id_str = pattern_cluster_id.\
+                find_all(cluster_str)[cluster_id_str_index]
+            self.cluster_id = int(cluster_id_str)
+        except IndexError:
+            self.cluster_id = int(-1)
         return(self)
 
     @property

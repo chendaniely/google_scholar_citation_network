@@ -156,23 +156,27 @@ SEED_CLUSTER_ID
 output_file_path = '../results/{}.csv'.\
                    format(SEED_ARTICLE.attrs['cluster_id'][0])
 
-with open(output_file_path, 'w+') as f:
-    for page_url, page_number in enumerate(range(num_search_pages)):
-        r = requests.get(citations_url_generic.format(page_url * 10))
-        soup = BeautifulSoup(r.text)
-        citations_url_generic.format('0')
-        gs_r = soup.find_all("div", class_="gs_r")
-        # print(len(gs_r))
-        for citing_article_soup in gs_r:
-            result_article = DanGoogleScholarArticle(soup=citing_article_soup)
-            result_article.parse_title()
-            # print(result_article.title)
-            result_article.parse_cluster_id()
-            seed_cluster_id = result_article.cluster_id
-            # print(seed_cluster_id)
-            str_to_write = '{}),{}\n'.\
-                           format(result_article.cluster_id, SEED_CLUSTER_ID)
-            f.write(str_to_write)
-        sleep_time = random() * randint(10, 50)
-        print('page: {}, sleeping: {}'.format(page_number, sleep_time))
-        sleep(sleep_time)
+f = open(output_file_path, 'w')
+f.close()
+
+for page_url, page_number in enumerate(range(num_search_pages)):
+    r = requests.get(citations_url_generic.format(page_url * 10))
+    soup = BeautifulSoup(r.text)
+    citations_url_generic.format('0')
+    gs_r = soup.find_all("div", class_="gs_r")
+    # print(len(gs_r))
+    for citing_article_soup in gs_r:
+        result_article = DanGoogleScholarArticle(soup=citing_article_soup)
+        result_article.parse_title()
+        # print(result_article.title)
+        result_article.parse_cluster_id()
+        seed_cluster_id = result_article.cluster_id
+        # print(seed_cluster_id)
+        f = open(output_file_path, 'a+')
+        str_to_write = '{}),{}\n'.\
+                       format(result_article.cluster_id, SEED_CLUSTER_ID)
+        f.write(str_to_write)
+        f.close()
+    sleep_time = random() * randint(10, 50)
+    print('page: {}, sleeping: {}'.format(page_number, sleep_time))
+    sleep(sleep_time)

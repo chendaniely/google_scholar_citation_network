@@ -176,8 +176,10 @@ for page_url, page_number in enumerate(range(num_search_pages)):
         seed_cluster_id = result_article.cluster_id
         # print(seed_cluster_id)
         f = open(output_file_path, 'a+')
-        str_to_write = '{}),{}\n'.\
-                       format(result_article.cluster_id, SEED_CLUSTER_ID)
+        str_to_write = '{}),{},{}\n'.\
+                       format(result_article.cluster_id,
+                              SEED_CLUSTER_ID,
+                              citing_article_soup)
         f.write(str_to_write)
         f.close()
     sleep_time = random() * randint(10, 50)

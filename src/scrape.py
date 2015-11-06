@@ -69,7 +69,7 @@ class DanGoogleScholarArticle(object):
 
             pattern_cluster_id = re.compile('\d+')
             cluster_id_str = pattern_cluster_id.\
-                find_all(cluster_str)[cluster_id_str_index]
+                findall(cluster_str)[cluster_id_str_index]
             self.cluster_id = int(cluster_id_str)
         except IndexError:
             self.cluster_id = int(-1)

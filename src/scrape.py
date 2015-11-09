@@ -93,95 +93,95 @@ class DanGoogleScholarArticle(object):
 
 
 def main():
-    pass
+    # scholar_article = scholar.ScholarArticle()
+    # scholar_article_parser = scholar.ScholarArticleParser()
 
+    querier = scholar.ScholarQuerier()
+    # settings = scholar.ScholarSettings()
+    query = scholar.SearchScholarQuery()
 
-scholar_article = scholar.ScholarArticle()
-scholar_article_parser = scholar.ScholarArticleParser()
+    query.set_author('eagly')
 
-querier = scholar.ScholarQuerier()
-settings = scholar.ScholarSettings()
-query = scholar.SearchScholarQuery()
+    query.set_words('psychology of attitudes')
 
-query.set_author('eagly')
+    querier.send_query(query)
 
-query.set_words('psychology of attitudes')
+    querier.articles[0].as_txt()
 
-querier.send_query(query)
+    querier.articles[0].attrs
 
-querier.articles[0].as_txt()
+    SEED_ARTICLE = querier.articles[0]
+    assert(SEED_ARTICLE.attrs.get('title')[0] == 'The psychology of attitudes.')
 
-querier.articles[0].attrs
+    type(SEED_ARTICLE)
 
-SEED_ARTICLE = querier.articles[0]
-assert(SEED_ARTICLE.attrs.get('title')[0] == 'The psychology of attitudes.')
+    SEED_ARTICLE.attrs['cluster_id'][0]
 
-type(SEED_ARTICLE)
+    citations_url = SEED_ARTICLE.attrs.get('url_citations')[0]
 
-SEED_ARTICLE.attrs['cluster_id'][0]
+    citations_url
 
-citations_url = SEED_ARTICLE.attrs.get('url_citations')[0]
+    citations_url_generic = 'https://scholar.google.com/scholar?start={}&hl=en&as_sdt=2005&sciodt=0,5&cites=5556531000720111691&scipsc='
+    citations_url_generic
 
-citations_url
-
-citations_url_generic = 'https://scholar.google.com/scholar?start={}&hl=en&as_sdt=2005&sciodt=0,5&cites=5556531000720111691&scipsc='
-citations_url_generic
-
-citations_url_generic.format('0')
-
-r = requests.get(citations_url_generic.format('0'))
-
-soup = BeautifulSoup(r.text)
-
-citation_results = CitationResults(soup=soup)
-citation_results.set_num_search_results().set_num_search_pages()
-citation_results.num_results
-
-num_search_pages = citation_results.num_search_pages
-num_search_pages
-
-gs_r = soup.find_all("div", class_="gs_r")
-
-len(gs_r)
-
-citing_article_soup = gs_r[2]
-
-result_article = DanGoogleScholarArticle(soup=citing_article_soup)
-
-result_article.parse_title()
-result_article.title
-
-result_article.parse_cluster_id()
-
-SEED_CLUSTER_ID = result_article.cluster_id
-SEED_CLUSTER_ID
-
-output_file_path = '../results/{}.csv'.\
-                   format(SEED_ARTICLE.attrs['cluster_id'][0])
-
-f = open(output_file_path, 'w')
-f.close()
-
-for page_url, page_number in enumerate(range(num_search_pages)):
-    r = requests.get(citations_url_generic.format(page_url * 10))
-    soup = BeautifulSoup(r.text)
     citations_url_generic.format('0')
+
+    r = requests.get(citations_url_generic.format('0'))
+
+    soup = BeautifulSoup(r.text)
+
+    citation_results = CitationResults(soup=soup)
+    citation_results.set_num_search_results().set_num_search_pages()
+    citation_results.num_results
+
+    num_search_pages = citation_results.num_search_pages
+    num_search_pages
+
     gs_r = soup.find_all("div", class_="gs_r")
-    # print(len(gs_r))
-    for citing_article_soup in gs_r:
-        result_article = DanGoogleScholarArticle(soup=citing_article_soup)
-        result_article.parse_title()
-        # print(result_article.title)
-        result_article.parse_cluster_id()
-        seed_cluster_id = result_article.cluster_id
-        # print(seed_cluster_id)
-        f = open(output_file_path, 'a+')
-        str_to_write = '{},{},{}\n'.\
-                       format(result_article.cluster_id,
-                              SEED_CLUSTER_ID,
-                              citing_article_soup)
-        f.write(str_to_write)
-        f.close()
-    sleep_time = random() * randint(10, 50)
-    print('page: {}, sleeping: {}'.format(page_number, sleep_time))
-    sleep(sleep_time)
+
+    len(gs_r)
+
+    citing_article_soup = gs_r[2]
+
+    result_article = DanGoogleScholarArticle(soup=citing_article_soup)
+
+    result_article.parse_title()
+    result_article.title
+
+    result_article.parse_cluster_id()
+
+    SEED_CLUSTER_ID = result_article.cluster_id
+    SEED_CLUSTER_ID
+
+    output_file_path = '../results/{}.csv'.\
+                       format(SEED_ARTICLE.attrs['cluster_id'][0])
+
+    f = open(output_file_path, 'w')
+    f.close()
+
+    for page_url, page_number in enumerate(range(num_search_pages)):
+        r = requests.get(citations_url_generic.format(page_url * 10))
+        soup = BeautifulSoup(r.text)
+        citations_url_generic.format('0')
+        gs_r = soup.find_all("div", class_="gs_r")
+        # print(len(gs_r))
+        for citing_article_soup in gs_r:
+            result_article = DanGoogleScholarArticle(soup=citing_article_soup)
+            result_article.parse_title()
+            # print(result_article.title)
+            result_article.parse_cluster_id()
+            # seed_cluster_id = result_article.cluster_id
+            # print(seed_cluster_id)
+            f = open(output_file_path, 'a+')
+            str_to_write = '{}\t|\t{}\t|\t{}\n'.\
+                           format(result_article.cluster_id,
+                                  SEED_CLUSTER_ID,
+                                  citing_article_soup)
+            f.write(str_to_write)
+            f.close()
+            sleep_time = random() * randint(10, 100)
+            print('page: {}, sleeping: {}'.format(page_number, sleep_time))
+            sleep(sleep_time)
+
+if __name__ == "__main__":
+    main()
